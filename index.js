@@ -11,7 +11,9 @@ const progress = ora("Connecting to drone...").start()
 
 
 drone.on("connection",async () => {
+    drone.events.setMaxListeners(Infinity)
     progress.succeed("Connected!")
+    await drone.send("battery?")
     await confirm()
     progress.start("📹 Beginning video stream...")
     await video.createServer()
@@ -22,7 +24,8 @@ drone.on("connection",async () => {
     open("http://localhost:3000/index.html")
     progress.text = "🕹 Starting control server..."
     await controlServer()
-    await takeoff()
+    progress.succeed("Started control server, have fun!")
+    // await takeoff()
 })
 
 async function confirm() {
@@ -72,11 +75,17 @@ async function controlServer() {
                 return;
             }
             var d = JSON.parse(instruction).state
+            // drone.send(`rc`,{
+            //     a: d.strafe,
+            //     b: d.x,
+            //     c: d.y,
+            //     d: d.yaw
+            // })
             drone.send(`rc`,{
-                a: d.strafe,
+                a: d.yaw,
                 b: d.x,
                 c: d.y,
-                d: d.yaw
+                d: d.strafe
             })
         })
         c.on("close",() => {

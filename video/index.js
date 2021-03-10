@@ -16,6 +16,9 @@
 // A basic http server that we'll access to view the stream
 const http = require('http');
 
+// FFMPEG
+const ffmpeg = require('ffmpeg-static')
+
 // To keep things simple we read the index.html page and send it to the client
 const fs = require('fs');
 
@@ -24,6 +27,7 @@ const WebSocket = require('ws');
 
 // We'll spawn ffmpeg as a separate process
 const spawn = require('child_process').spawn;
+const chalk = require('chalk');
 
 // HTTP and streaming ports
 const HTTP_PORT = 3000;
@@ -101,23 +105,37 @@ async function createServer() {
 */
 
 async function stream() {
+  // MoonBarc did some stream optimizations ;)
   var args = [
     "-i", "udp://0.0.0.0:11111",
     "-r", "30",
     "-s", "960x720",
     "-codec:v", "mpeg1video",
     "-b", "800k",
-    "-f", "mpegts",
+    "-f", "mpegts,low_delay",
+    "-fflags", "nobuffer",
+    // "-flags", "",
+    "-strict", "experimental",
+    "-probesize", "32",
+    "-framedrop",
     "http://127.0.0.1:3001/stream"
   ];
 
   // Spawn an ffmpeg instance
-  var streamer = spawn('ffmpeg', args, {shell: true});
+  var streamer = spawn(ffmpeg, args, {shell: true});
   // Uncomment if you want to see ffmpeg stream info
   //streamer.stderr.pipe(process.stderr);
   streamer.on("exit", function(code){
       console.log("Failure", code);
   });
+
+  streamer.on("message",(m) => {
+    console.log(chalk.blue.bold`[FFMPEG]`, m)
+  })
+
+  streamer.on('error',(err) => {
+    console.error(chalk.red`Stream error!`, err)
+  })
 }
 
 module.exports = {
