@@ -112,12 +112,12 @@ async function stream() {
     "-s", "960x720",
     "-codec:v", "mpeg1video",
     "-b", "800k",
-    "-f", "mpegts,low_delay",
-    "-fflags", "nobuffer",
-    // "-flags", "",
+    "-f", "mpegts",
+    // "-fflags", "nobuffer",
+    // "-flags", "low_delay",
     "-strict", "experimental",
-    "-probesize", "32",
-    "-framedrop",
+    // "-probesize", "32",
+    // "-framedrop",
     "http://127.0.0.1:3001/stream"
   ];
 
