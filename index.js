@@ -14,7 +14,7 @@ drone.on("connection",async () => {
     drone.events.setMaxListeners(Infinity)
     progress.succeed("Connected!")
     await drone.send("battery?")
-    await confirm()
+    var dtakeoff = await confirm()
     progress.start("📹 Beginning video stream...")
     await video.createServer()
     await drone.send('streamon')
@@ -25,18 +25,21 @@ drone.on("connection",async () => {
     progress.text = "🕹 Starting control server..."
     await controlServer()
     progress.succeed("Started control server, have fun!")
-    // await takeoff()
+    if(dtakeoff) await takeoff()
+    console.log(chalk.green.bold`The drone is flying!`)
 })
 
 async function confirm() {
     const confirmation = await prompts({
         type: 'confirm',
         name: "bool",
-        message: "Take off?"
+        message: "Auto-takeoff?"
     })
     if(!confirmation.bool) {
-        console.log(chalk.red`Drone takeoff cancelled.`)
-        process.exit(1)
+        console.log(chalk.red`Okay, I won't take off.`)
+        return false;
+    }else{
+        return true;
     }
 }
 
