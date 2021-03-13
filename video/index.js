@@ -41,13 +41,6 @@ async function createServer() {
   */
   server = http.createServer(function(request, response) {
 
-    // Log that an http connection has come through
-    console.log(
-      'HTTP Connection on ' + HTTP_PORT + ' from: ' + 
-      request.socket.remoteAddress + ':' +
-      request.socket.remotePort
-    );
-
     // Read file from the local directory and serve to user
     // in this case it will be index.html
     fs.readFile(__dirname + '/www' + request.url, function (err,data) {
@@ -67,13 +60,6 @@ async function createServer() {
     2. Create the stream server where the video stream will be sent
   */
   const streamServer = http.createServer(function(request, response) {
-
-    // Log that a stream connection has come through
-    console.log(
-      'Stream Connection on ' + STREAM_PORT + ' from: ' + 
-      request.socket.remoteAddress + ':' +
-      request.socket.remotePort
-    );
 
     // When data comes from the stream (FFmpeg) we'll pass this to the web socket
     request.on('data', function(data) {

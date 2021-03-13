@@ -26,7 +26,7 @@ drone.on("connection",async () => {
     await controlServer()
     progress.succeed("Started control server, have fun!")
     if(dtakeoff) await takeoff()
-    console.log(chalk.green.bold`The drone is flying!`)
+    console.log(chalk.green.bold`The drone is ready!`)
 })
 
 async function confirm() {
