@@ -5,6 +5,7 @@ const path = require("path")
 const Tello = require("tello-drone")
 const videou = require("./video")
 const ora = require("ora")
+const open = require("open")
 
 const drone = new Tello()
 
@@ -14,7 +15,7 @@ async function welcome() {
     files = files.filter((f) => f.endsWith(".json"))
     const selection = await prompts({
         type: "select",
-        message: "Please select a recording from the list.",
+        message: "Please select a recording from the list",
         name: "file",
         choices: files
     })
@@ -39,19 +40,22 @@ async function welcome() {
 
 async function confirm() {
     const ans = await prompts([{
+        type: "toggle",
+        message: "Video stream?",
+        name: "video"
+    },{
         type: "confirm",
         message: "Play recording?",
         name: "confirmed"
-    },{
-        type: "toggle",
-        message: "Stream video?",
-        name: "video"
-    }])
+    },])
+    if(!drone.connected) {
+        console.error(chalk.bold.red`Error, drone not connected!`)
+        process.exit(1)
+    }
     if(ans.video) {
         const spinner = ora("Starting video stream...").start()
         await startVideo()
-        spinner.succeed("Video stream started, opening in browser...")
-        open("http://localhost:3000/index.html")
+        spinner.succeed("Video stream started, opening in browser.")
     }
     if(ans.confirmed) {
         console.log(chalk.green`Playing recording...`)
@@ -69,7 +73,9 @@ async function startVideo() {
     await videou.createServer()
     await drone.send("streamon")
     await videou.stream()
-    await sleep(1000)
+    open("http://localhost:3000/index.html")
+    await sleep(5000)
+    return;
 }
 
 async function playRecording(data) {
