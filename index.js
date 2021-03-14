@@ -74,6 +74,7 @@ async function confirm() {
 process.on("SIGINT",async () => {
     if(!drone.connected) process.exit(1)
     sendCommand("land")
+    drone.send("streamoff")
     if(recording) {
         console.log(chalk.yellow.bold`[R] Saving recording...`)
         await fs.writeFile(file,JSON.stringify(output))
