@@ -7,6 +7,10 @@
   "author": "MoonBarc <no@lawsmat.com>",
   "license": "MIT",
   "private": false,
+  "scripts": {
+    "start": "node index.js",
+    "replay": "node play.js"
+  },
   "dependencies": {
     "chalk": "^4.1.0",
     "ffmpeg-static": "^4.2.7",
