@@ -3,6 +3,8 @@ const prompts = require("prompts")
 const fs = require("fs").promises
 const path = require("path")
 const Tello = require("tello-drone")
+const videou = require("./video")
+const ora = require("ora")
 
 const drone = new Tello()
 
@@ -36,11 +38,21 @@ async function welcome() {
 }
 
 async function confirm() {
-    const ans = await prompts({
+    const ans = await prompts([{
         type: "confirm",
         message: "Play recording?",
         name: "confirmed"
-    })
+    },{
+        type: "toggle",
+        message: "Stream video?",
+        name: "video"
+    }])
+    if(ans.video) {
+        const spinner = ora("Starting video stream...").start()
+        await startVideo()
+        spinner.succeed("Video stream started, opening in browser...")
+        open("http://localhost:3000/index.html")
+    }
     if(ans.confirmed) {
         console.log(chalk.green`Playing recording...`)
         return true;
@@ -51,6 +63,13 @@ async function confirm() {
 
 function sleep(ms) {
     return new Promise((r) => setTimeout(r,ms))
+}
+
+async function startVideo() {
+    await videou.createServer()
+    await drone.send("streamon")
+    await videou.stream()
+    await sleep(1000)
 }
 
 async function playRecording(data) {
@@ -71,8 +90,9 @@ async function playRecording(data) {
 }
 
 process.on("SIGINT",() => {
+    setTimeout(() => process.exit(0),500)
     drone.send("land")
-    setTimeout(() => process.exit(1),500)
+    drone.send("streamoff")
 })
 
 welcome()
