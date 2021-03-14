@@ -5,16 +5,43 @@ const prompts = require('prompts')
 const open = require('open')
 const video = require('./video')
 const ws = require('ws')
+const fs = require("fs").promises
+const path = require('path')
 
 const drone = new Tello()
 const progress = ora("Connecting to drone...").start()
 
+drone.events.setMaxListeners(Infinity)
+
+let recording = false;
+let starttime
+let output = []
+let file = path.join(__dirname,"recordings","latest.json")
+
+function getTimestamp() {
+    return Date.now() - starttime
+}
+
+async function sendCommand(c,a) {
+    if(recording) {
+        output.push(
+            {
+                timestamp: getTimestamp(),
+                command: {
+                    name: c,
+                    args: a
+                }
+            }
+        )
+    }
+    await drone.forceSend(c,a)
+}
 
 drone.on("connection",async () => {
     drone.events.setMaxListeners(Infinity)
-    progress.succeed("Connected!")
+    progress.succeed("[!] Connected!")
     await drone.send("battery?")
-    var dtakeoff = await confirm()
+    recording = await confirm()
     progress.start("📹 Beginning video stream...")
     await video.createServer()
     await drone.send('streamon')
@@ -25,36 +52,36 @@ drone.on("connection",async () => {
     progress.text = "🕹 Starting control server..."
     await controlServer()
     progress.succeed("Started control server, have fun!")
-    if(dtakeoff) await takeoff()
     console.log(chalk.green.bold`The drone is ready!`)
+    starttime = Date.now()
 })
 
 async function confirm() {
     const confirmation = await prompts({
         type: 'confirm',
         name: "bool",
-        message: "Auto-takeoff?"
+        message: "Record this flight?"
     })
     if(!confirmation.bool) {
-        console.log(chalk.red`Okay, I won't take off.`)
+        console.log(chalk.red`[R] Recording disabled.`)
         return false;
     }else{
+        console.log(chalk.green`[R] Recording enabled!`)
         return true;
     }
 }
 
-async function takeoff() {
-    progress.start("Taking off!")
-    await drone.send("takeoff")
-    progress.succeed("Done, have fun!")
-}
-
 process.on("SIGINT",async () => {
     if(!drone.connected) process.exit(1)
-    console.log(chalk.bgRed.white`emergency landing engaged`)
-    drone.send("land")
+    sendCommand("land")
+    if(recording) {
+        console.log(chalk.yellow.bold`[R] Saving recording...`)
+        await fs.writeFile(file,JSON.stringify(output))
+        console.log(chalk.green.bold`[R] Recording saved!`)
+    }
+    console.log(chalk.bgRed.white`[!] emergency landing engaged`)
     setTimeout(() => {
-        console.log(chalk.red`process exited`)
+        console.log(chalk.red`[!] process exited`)
         process.exit()
     }, 3000);
 })
@@ -70,21 +97,19 @@ async function controlServer() {
         console.log(chalk.bold`🕹 Control server connection!`)
         c.on("message",(instruction) => {
             if(instruction == "land") {
-                drone.send('land')
+                sendCommand('land')
                 return;
             }
             if(instruction == "takeoff") {
-                drone.send('takeoff')
+                sendCommand('takeoff')
+                return;
+            }
+            if(instruction == "doaflip") {
+                sendCommand('flip f')
                 return;
             }
             var d = JSON.parse(instruction).state
-            // drone.send(`rc`,{
-            //     a: d.strafe,
-            //     b: d.x,
-            //     c: d.y,
-            //     d: d.yaw
-            // })
-            drone.send(`rc`,{
+            sendCommand(`rc`,{
                 a: d.yaw,
                 b: d.x,
                 c: d.y,
