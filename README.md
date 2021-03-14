@@ -23,3 +23,10 @@ npm run replay
 ```
 
 ⚠️ use with caution, drones can be scary sometimes ⚠️
+
+### Note on recordings:
+Recordings are meant for short flights. If the drone goes at a slightly different angle at the beginning, or hovers differently during takeoff, the recording can have catastrophic errors.
+
+I tried flying it into my kitchen and it bashed its face into the wall (actually reasonably close, but not good enough)
+
+I also did a fly-around, it didn't go well and also crashed into the wall.
