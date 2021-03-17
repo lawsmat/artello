@@ -1,7 +1,38 @@
 let wsConnection = new WebSocket("ws://localhost:3002")
-wsConnection.onopen = () => {
+let color = "#00f"
+let borderelm;
+
+document.addEventListener("DOMContentLoaded",() => {
+    borderelm = document.querySelector("#video-canvas")
+    color = borderelm.style.color
+})
+
+wsConnection.addEventListener("open", () => {
     console.log("🕹 Controller socket connected!")
+})
+
+function flicker(ncolor) {
+    var d = false
+    var n = 0
+    var i = setInterval(() => {
+        if(!borderelm) return;
+        n++
+        d = !d
+        borderelm.style.color = d ? color : ncolor
+        if(n == 10) {
+            clearInterval(i)
+        }
+    },200)
 }
+
+wsConnection.addEventListener("message", m => {
+    if(m == "error") {
+        flicker("#f00")
+    }else if(m == "success") {
+        flicker("#0f0")
+    }
+})
+
 let speed = 75
 
 let state = {

@@ -121,6 +121,13 @@ async function controlServer() {
             console.log(chalk.bold`🕹 Control server disconnect.`)
         })
     })
+    return server;
 }
 
-drone.on('message',m => console.log(m))
+drone.on('message',m => {
+    console.log(m)
+    if(typeof wserver != "undefined") return;
+    if(m == "error") {
+
+    }
+})

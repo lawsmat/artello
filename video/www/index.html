@@ -15,14 +15,18 @@
 	<script src="/aruco/posit1.js"></script>
 	<script src="/aruco/cv.js"></script>
 	<!-- End js-aruco scripts -->
+	<script src="/detector.js"></script>
 </head>
 <body>
-	<canvas id="video-canvas"></canvas>
+	<div id="aruco-area">
+		<canvas style="color: #3c99fc;" id="aruco-canvas"></canvas>
+	</div>
+	<canvas style="color: #3c99fc;" id="video-canvas"></canvas>
 	<script type="text/javascript" src="jsmpeg.min.js"></script>
 	<script type="text/javascript">
 		var canvas = document.getElementById('video-canvas');
 		var url = 'ws://'+document.location.hostname+':3001/stream';
-		var player = new JSMpeg.Player(url, {canvas: canvas});
+		var player = new JSMpeg.Player(url, {canvas: canvas, disableGl: true});
 	</script>
 </body>
 </html>
