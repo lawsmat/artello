@@ -34,7 +34,10 @@ const HTTP_PORT = 3000;
 const STREAM_PORT = 3001
 
 
-async function createServer() {
+async function createServer(aruco) {
+  if(aruco) {
+    console.log(chalk.blue`[V] Initialized aruco support!`)
+  }
   /*
     1. Create the web server that the user can access at
     http://localhost:3000/index.html
@@ -63,6 +66,10 @@ async function createServer() {
 
     // When data comes from the stream (FFmpeg) we'll pass this to the web socket
     request.on('data', function(data) {
+      // send to the controller if it's a thing
+      if(aruco) {
+        aruco.streamData(data)
+      }
       // Now that we have data let's pass it to the web socket server
       webSocketServer.broadcast(data);
     });
