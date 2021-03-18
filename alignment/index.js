@@ -1,4 +1,4 @@
-const EventEmitter = require("node:events");
+const EventEmitter = require("events");
 const { AR } = require('./js-aruco2/aruco')
 const POS = require("./js-aruco2/posit1")
 
@@ -9,14 +9,17 @@ class AlignmentController extends EventEmitter {
      * @param {number} range Success range.
      * @param {number} markerSize size of markers in milimeters
      * @param {number} fl Focal length (tello: 2)
+     * @param {number} speed speed that drone goes to get to position (-100 to 100) | negative values will result in failure!
      */
-    constructor(drone, range, markerSize, fl) {
+    constructor(drone, range, markerSize, fl, speed) {
         super()
         this.drone = drone
         this.range = range
         this.positioning = AR
         this.markerSize = markerSize
-        this.detector = new AR.Detector()
+        this.detector = new AR.Detector({
+            dictionaryName: "ARUCO"
+        })
         // the positionator 3000
         this.positionator = new POS.Posit(markerSize,fl)
     }
@@ -27,47 +30,66 @@ class AlignmentController extends EventEmitter {
     markerSize
     positionator
     fl
+    speed
 
-    travel(current,target) {
+    async travel(target) {
         if(!this.drone.connected) {
             this.emit("error")
             throw new Error("Drone not connected.")
         }
         this.emit("travelling")
         // work on the y value
-        if(this.getPosition())
+        if(this.getPosition(markers).bestTranslation.y - target.y)
+        await this.#send(`speed ${this.speed}`)
+        await this.#send("")
+
+        // rotate
         this.#send("rc",{
-            a: 2,
-            b: 3,
-            c: 4,
-            d: 5
+            a: 0, // left/right
+            b: 0, // forward/backward
+            c: 0, // up/down
+            d: 0 // YAW
+        })
+
+        // forward
+        this.#send("rc",{
+            a: 0, // left/right
+            b: 0, // forward/backward
+            c: 0, // up/down
+            d: 0 // YAW
+        })
+
+        // pivot
+        this.#send("rc",{
+            a: 0, // left/right
+            b: 0, // forward/backward
+            c: 0, // up/down
+            d: 0 // YAW
         })
     }
 
-    #send(m,a) {
-        this.drone.send(m,a)
+    async #send(m,a) {
+        await this.drone.send(m,a)
     }
 
     onDetect(i,ml) {
-        if(ml.length == 0) return;
+        console.log("ran")
+        if(ml.length == 0) return console.log("blank");
         this.emit("markers",ml)
-        this.getPosition()
+        // this.travel(GET)
     }
 
     streamData(d) {
-        this.detector.detectStream(d)
+        this.emit("markers",this.detector.detectImage(1280,720,d))
     }
 
     startDetector() {
-        this.detector.detectStreamInit(1280,720,this.onDetect)
+        // this.detector.detectStreamInit(1280,720,this.onDetect)
     }
 
     getPosition(markers) {
-        
-    }
-
-    getImage() {
-
+        var pose = this.positionator.pose(markers)
+        return pose
     }
 }
 

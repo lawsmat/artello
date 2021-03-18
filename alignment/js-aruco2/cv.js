@@ -735,3 +735,5 @@ CV.binaryBorder = function(imageSrc, dst){
 
   return dst;
 };
+
+module.exports = CV

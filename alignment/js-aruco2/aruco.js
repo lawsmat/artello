@@ -30,7 +30,7 @@ References:
 */
 
 var AR = {};
-var CV = this.CV || require('./cv').CV;
+var CV = this.CV || require('./cv');
 this.AR = AR;
 
 AR.DICTIONARIES = {
