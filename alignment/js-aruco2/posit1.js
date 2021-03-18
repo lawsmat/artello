@@ -490,3 +490,5 @@ POS.Pose = function(error1, rotation1, translation1, error2, rotation2, translat
   this.alternativeRotation = rotation2;
   this.alternativeTranslation = translation2;
 };
+
+module.exports = POS
