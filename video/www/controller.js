@@ -4,7 +4,7 @@ let borderelm;
 
 document.addEventListener("DOMContentLoaded",() => {
     borderelm = document.querySelector("#video-canvas")
-    color = borderelm.style.color
+    color = borderelm.style.borderColor
 })
 
 wsConnection.addEventListener("open", () => {
@@ -18,7 +18,7 @@ function flicker(ncolor) {
         if(!borderelm) return;
         n++
         d = !d
-        borderelm.style.color = d ? color : ncolor
+        borderelm.style.borderColor = d ? color : ncolor
         if(n == 10) {
             clearInterval(i)
         }

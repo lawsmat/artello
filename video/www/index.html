@@ -18,15 +18,20 @@
 	<script src="/detector.js"></script>
 </head>
 <body>
+	<!-- Display canvas for processed input. (aruco detection visualization) -->
 	<div id="aruco-area">
-		<canvas style="color: #3c99fc;" id="aruco-canvas"></canvas>
+		<canvas style="border-color: #3c99fc;" id="aruco-canvas"></canvas>
 	</div>
-	<canvas style="color: #3c99fc;" id="video-canvas"></canvas>
+	<!-- Hidden video canvas for raw input. -->
+	<canvas style="color: #3c99fc; display: none;" id="video-canvas"></canvas>
 	<script type="text/javascript" src="jsmpeg.min.js"></script>
 	<script type="text/javascript">
 		var canvas = document.getElementById('video-canvas');
 		var url = 'ws://'+document.location.hostname+':3001/stream';
-		var player = new JSMpeg.Player(url, {canvas: canvas, disableGl: true});
+		var player = new JSMpeg.Player(url, {canvas: canvas, disableGl: true, preserveDrawingBuffer: true, onVideoDecode: () => {
+			// frame decoded, yay
+			tick()
+		}});
 	</script>
 </body>
 </html>

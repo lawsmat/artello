@@ -33,7 +33,10 @@ const chalk = require('chalk');
 const HTTP_PORT = 3000;
 const STREAM_PORT = 3001
 
-
+/**
+ * 
+ * @param {import("../alignment")} aruco
+ */
 async function createServer(aruco) {
   if(aruco) {
     console.log(chalk.blue`[V] Initialized aruco support!`)
@@ -98,7 +101,6 @@ async function createServer(aruco) {
 */
 
 async function stream() {
-  // MoonBarc did some stream optimizations ;)
   var args = [
     "-i", "udp://0.0.0.0:11111",
     "-r", "30",
@@ -106,6 +108,7 @@ async function stream() {
     "-codec:v", "mpeg1video",
     "-b", "800k",
     "-f", "mpegts",
+    "-pix_fmt", "rgba",
     // "-fflags", "nobuffer",
     // "-flags", "low_delay",
     "-strict", "experimental",

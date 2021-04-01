@@ -9,9 +9,12 @@
   "private": false,
   "scripts": {
     "start": "node index.js",
-    "replay": "node play.js"
+    "replay": "node play.js",
+    "testStream": "ffmpeg -f avfoundation -pix_fmt uyvy422 -framerate 30 -i \"0:none\" -vf \"fps=fps=23.976,format=rgba\" -bitrate 8000k -video_size 640x480 -f mpegts -codec:v mpeg1video http://localhost:3001/stream",
+    "testStreamDesktop": "ffmpeg -f avfoundation -pix_fmt uyvy422 -framerate 30 -i \"1:none\" -vf \"fps=fps=23.976,format=rgba\" -bitrate 8000k -video_size 640x480 -f mpegts -codec:v mpeg1video http://localhost:3001/stream"
   },
   "dependencies": {
+    "canvas": "^2.7.0",
     "chalk": "^4.1.0",
     "ffmpeg-static": "^4.2.7",
     "open": "^8.0.2",

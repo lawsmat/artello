@@ -128,6 +128,6 @@ drone.on('message',m => {
     console.log(m)
     if(typeof wserver != "undefined") return;
     if(m == "error") {
-
+        wserver
     }
 })

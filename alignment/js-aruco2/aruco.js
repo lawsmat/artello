@@ -32,6 +32,7 @@ References:
 var AR = {};
 var CV = this.CV || require('./cv');
 this.AR = AR;
+const tcanvas = require("canvas")
 
 AR.DICTIONARIES = {
   ARUCO: {
@@ -154,40 +155,61 @@ AR.Detector.prototype.detectStreamInit = function (width, height, callback) {
   this.streamConfig.height = height;
   this.streamConfig.imageSize = width * height * 4; //provided image must be a sequence of rgba bytes (4 bytes represent a pixel)
   this.streamConfig.index = 0;
-  this.streamConfig.imageData = new Uint8ClampedArray(this.streamConfig.imageSize);
+  this.streamConfig.imageData = [this.streamConfig.imageSize]
   this.streamConfig.callback = callback || function (image, markerList) {};
 };
 
-//accept data chunks of different sizes
-AR.Detector.prototype.detectStream = function (data) {
-  for (var i = 0; i < data.length; i++) {
-    this.streamConfig.imageData[this.streamConfig.index] = data[i];
-    this.streamConfig.index = (this.streamConfig.index + 1) % this.streamConfig.imageSize;
-    if (this.streamConfig.index == 0) {
-      var image = {
-        width: this.streamConfig.width,
-        height: this.streamConfig.height,
-        data: this.streamConfig.imageData
-      };
-      var markerList = this.detect(image);
-      this.streamConfig.callback(image, markerList);
-    }
-  }
-};
+// var debuged = -1;
 
-AR.Detector.prototype.detect = function (image) {
-  CV.grayscale(image, this.grey);
-  CV.adaptiveThreshold(this.grey, this.thres, 2, 7);
+// //accept data chunks of different sizes
+// AR.Detector.prototype.detectStream = function (data) {
+//   var st = Array.from(this.streamConfig.imageData)
+//   st.splice(this.streamConfig.index)
+//   var arr = st.concat(Array.from(data))
+//   if(arr.length < this.streamConfig.imageSize) {
+//     // not enough data to form an image, but we'll add it to the list.
+//     this.streamConfig.imageData = new Uint8ClampedArray(arr,0,this.streamConfig.imageSize)
+//     this.streamConfig.index = arr.length - 1
+//     return;
+//   }
+//   var overflow = arr.splice(this.streamConfig.imageSize)
+//   this.streamConfig.index = overflow.length;
+//   // console.log("overflow size",overflow.length)
+//   // console.log("arr size",arr.length)
+//   // console.log("data size",data.length)
+//   var d = new Uint8ClampedArray(this.streamConfig.imageSize)
+//   d.set(arr, 0)
+//   var img = {
+//     width: this.streamConfig.width,
+//     height: this.streamConfig.height,
+//     data: d
+//   }
+//   var markers = this.detect(img)
+//   // data url
+//   if(debuged == 20) {
+//     var canvas = new tcanvas.Canvas(this.streamConfig.width, this.streamConfig.height, "image")
+//     var imgdata = tcanvas.createImageData(img.data, this.streamConfig.width,this.streamConfig.height)
+//     canvas.getContext("2d").putImageData(imgdata,0,0)
+//     canvas.createPNGStream().pipe(require("fs").createWriteStream(__dirname + "/debug.png"))
+//   }
+//   debuged++
+//   this.streamConfig.callback(img, markers);
+//   this.streamConfig.imageData = overflow
+// };
 
-  this.contours = CV.findContours(this.thres, this.binary);
-  //Scale Fix: https://stackoverflow.com/questions/35936397/marker-detection-on-paper-sheet-using-javascript
-  //this.candidates = this.findCandidates(this.contours, image.width * 0.20, 0.05, 10);
-  this.candidates = this.findCandidates(this.contours, image.width * 0.01, 0.05, 10);
-  this.candidates = this.clockwiseCorners(this.candidates);
-  this.candidates = this.notTooNear(this.candidates, 10);
+// AR.Detector.prototype.detect = function (image) {
+//   CV.grayscale(image, this.grey);
+//   CV.adaptiveThreshold(this.grey, this.thres, 2, 7);
 
-  return this.findMarkers(this.grey, this.candidates, 49);
-};
+//   this.contours = CV.findContours(this.thres, this.binary);
+//   //Scale Fix: https://stackoverflow.com/questions/35936397/marker-detection-on-paper-sheet-using-javascript
+//   //this.candidates = this.findCandidates(this.contours, image.width * 0.20, 0.05, 10);
+//   this.candidates = this.findCandidates(this.contours, image.width * 0.01, 0.05, 10);
+//   this.candidates = this.clockwiseCorners(this.candidates);
+//   this.candidates = this.notTooNear(this.candidates, 10);
+
+//   return this.findMarkers(this.grey, this.candidates, 49);
+// };
 
 AR.Detector.prototype.findCandidates = function (contours, minSize, epsilon, minLength) {
   var candidates = [],

@@ -12,17 +12,17 @@ document.addEventListener("DOMContentLoaded",() => {
     vctx = video.getContext("2d")
     console.log(vctx,video)
     context = acanvas.getContext("2d")
-    requestAnimationFrame(tick)
+    // requestAnimationFrame(tick)
 })
 
 function tick() {
     acanvas.height = video.height
     acanvas.width = video.width
     var vd = vctx.getImageData(0,0,video.width,video.height)
+    context.drawImage(video, 0, 0);
     var markers = detector.detect(vd)
     if(markers.length == 0) {
-        area.style.display = "none"
-        return;
+        // area.style.display = "none"
     }else{
         area.style.display = "block"
     }

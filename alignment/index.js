@@ -73,18 +73,16 @@ class AlignmentController extends EventEmitter {
     }
 
     onDetect(i,ml) {
-        console.log("ran")
-        if(ml.length == 0) return console.log("blank");
+        if(ml.length == 0) return;
         this.emit("markers",ml)
-        // this.travel(GET)
     }
 
     streamData(d) {
-        this.emit("markers",this.detector.detectImage(1280,720,d))
+        this.detector.detectStream(d)
     }
 
     startDetector() {
-        // this.detector.detectStreamInit(1280,720,this.onDetect)
+        this.detector.detectStreamInit(640,480,this.onDetect)
     }
 
     getPosition(markers) {
