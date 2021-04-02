@@ -15,6 +15,10 @@ drone.events.setMaxListeners(Infinity)
 
 let recording = false;
 let starttime
+/**
+ * @type {ws.Server}
+ */
+let wserver;
 let output = []
 let file = path.join(__dirname,"recordings","latest.json")
 
@@ -94,6 +98,8 @@ async function controlServer() {
         return;
     })
 
+    wserver = server
+
     server.on("connection",(c) => {
         console.log(chalk.bold`🕹 Control server connection!`)
         c.on("message",(instruction) => {
@@ -126,8 +132,8 @@ async function controlServer() {
 
 drone.on('message',m => {
     console.log(m)
-    if(typeof wserver != "undefined") return;
+    if(typeof wserver === "undefined") return;
     if(m == "error") {
-        wserver
+        wserver.clients.forEach(c => c.send("error"))
     }
 })

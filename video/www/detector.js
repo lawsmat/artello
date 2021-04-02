@@ -5,6 +5,13 @@ var video
 var vctx 
 var context
 
+var scene = new THREE.Scene()
+var renderer = new THREE.WebGLRenderer({ alpha: true })
+/**
+ * @type {import("./aruco/posit1")}
+ */
+var pos = new POS.Posit(100, 2)
+
 document.addEventListener("DOMContentLoaded",() => {
     area = document.querySelector("#aruco-area")
     acanvas = document.querySelector("#aruco-canvas")
@@ -31,6 +38,10 @@ function tick() {
     drawId(markers)
 }
 
+function update3d(data) {
+
+}
+
 function drawCorners(markers){
     var corners, corner, i, j;
 
@@ -43,10 +54,10 @@ function drawCorners(markers){
         context.beginPath();
         
         for (j = 0; j !== corners.length; ++ j){
-        corner = corners[j];
-        context.moveTo(corner.x, corner.y);
-        corner = corners[(j + 1) % corners.length];
-        context.lineTo(corner.x, corner.y);
+            corner = corners[j];
+            context.moveTo(corner.x, corner.y);
+            corner = corners[(j + 1) % corners.length];
+            context.lineTo(corner.x, corner.y);
         }
 
         context.stroke();
@@ -70,12 +81,12 @@ function drawId(markers){
         y = Infinity;
         
         for (j = 0; j !== corners.length; ++ j){
-        corner = corners[j];
-        
-        x = Math.min(x, corner.x);
-        y = Math.min(y, corner.y);
+            corner = corners[j];
+            
+            x = Math.min(x, corner.x);
+            y = Math.min(y, corner.y);
         }
-
+        context.font = "10px serif"
         context.strokeText(markers[i].id, x, y)
     }
 }
