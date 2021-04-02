@@ -7,6 +7,7 @@ var context
 
 var scene = new THREE.Scene()
 var renderer = new THREE.WebGLRenderer({ alpha: true })
+renderer.setClearColor(0xffffff, 1);
 /**
  * @type {import("./aruco/posit1")}
  */
@@ -19,7 +20,6 @@ document.addEventListener("DOMContentLoaded",() => {
     vctx = video.getContext("2d")
     console.log(vctx,video)
     context = acanvas.getContext("2d")
-    // requestAnimationFrame(tick)
 })
 
 function tick() {
