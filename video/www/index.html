@@ -8,6 +8,7 @@
 			text-align: center;
 		}
 	</style>
+	<script src="/three/three.min.js"></script>
 	<script src="/controller.js"></script>
 	<!-- Start js-aruco scripts -->
 	<script src="/aruco/aruco.js"></script>
@@ -23,7 +24,7 @@
 		<canvas style="border-color: #3c99fc;" id="aruco-canvas"></canvas>
 	</div>
 	<!-- Hidden video canvas for raw input. -->
-	<canvas style="color: #3c99fc; display: none;" id="video-canvas"></canvas>
+	<canvas style="color: #3c99fc; display: block;" id="video-canvas"></canvas>
 	<script type="text/javascript" src="jsmpeg.min.js"></script>
 	<script type="text/javascript">
 		var canvas = document.getElementById('video-canvas');
